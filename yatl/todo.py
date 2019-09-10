@@ -36,6 +36,10 @@ class Todo(object):
         self.df.sort_values(by='priority', ascending=False, inplace=True)
         self.df.to_csv(self.fpath, index=False)
 
+    def _plot_offset(self, frac=0.05):
+        maxdisp = frac * (self.value_minmax[1] - self.value_minmax[0])
+        return maxdisp * (2*np.random.random_sample() - 1)
+
     def plot(self):
         fig,ax = plt.subplots(figsize=(10,4))
         for i,(idx,task) in enumerate(self.df.iterrows()):
@@ -59,7 +63,11 @@ class Todo(object):
             #        horizontalalignment='left', verticalalignment='bottom',
             #        fontsize=12, color=labelcolor,
             #        transform=ax.transAxes)
-            ax.plot(task['cost'], task['importance'], ls='none', **style)
+            xloc = task['cost'] + self._plot_offset()
+            yloc = task['importance'] + self._plot_offset()
+            ax.plot(xloc, yloc, ls='none', **style)
+
+        # formatting
         expanded_range = (self.value_minmax[0] - 0.25,
                           self.value_minmax[1] + 0.25)
         ax.axhline(self.value_split, ls='-', color='k')
@@ -86,5 +94,6 @@ class Todo(object):
         ax.set_ylabel('importance')
         ax.legend(loc='upper left', bbox_to_anchor=(1.05,1))
         fig.tight_layout()
+
         plt.show()
 
