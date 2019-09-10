@@ -21,7 +21,12 @@ class Todo(object):
         except FileNotFoundError: 
             self.df = pd.DataFrame(columns=self.todo_columns)
         else:
-            self.df.sort_values(by='priority', ascending=False, inplace=True)
+            self._sort_list()
+
+    def _sort_list(self):
+        self.df.sort_values(by=['priority','importance','datetime'],
+                            ascending=[False,False,True],
+                            inplace=True)
 
     def add_task(self, description, importance, cost):
         newtask = pd.Series({
@@ -33,7 +38,7 @@ class Todo(object):
             'completed': False,
         })
         self.df = self.df.append(newtask, ignore_index=True)
-        self.df.sort_values(by='priority', ascending=False, inplace=True)
+        self._sort_list()
         self.df.to_csv(self.fpath, index=False)
 
     def _plot_offset(self, frac=0.05):
