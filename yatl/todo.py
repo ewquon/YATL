@@ -12,6 +12,7 @@ class Todo(object):
     def __init__(self, fpath, value_minmax=(1,4)):
         self.fpath = fpath
         self.value_minmax = value_minmax
+        self.value_split = np.mean(value_minmax)
         self._read_list()
 
     def _read_list(self):
@@ -59,9 +60,22 @@ class Todo(object):
             #        fontsize=12, color=labelcolor,
             #        transform=ax.transAxes)
             ax.plot(task['cost'], task['importance'], ls='none', **style)
-        expanded_range = np.array(self.value_minmax)
-        expanded_range[0] -= 1
-        expanded_range[1] += 1
+        expanded_range = (self.value_minmax[0] - 0.25,
+                          self.value_minmax[1] + 0.25)
+        ax.axhline(self.value_split, ls='-', color='k')
+        ax.axvline(self.value_split, ls='-', color='k')
+        bkg_props = {
+            'color': '0.7',
+            'fontfamily': 'sans-serif',
+            'fontsize': 'xx-large',
+            'horizontalalignment': 'left',
+            'verticalalignment': 'top',
+            'transform': ax.transAxes,
+        }
+        ax.text(0.05, 0.95, '1', **bkg_props)
+        ax.text(0.55, 0.95, '2', **bkg_props)
+        ax.text(0.05, 0.45, '3', **bkg_props)
+        ax.text(0.55, 0.45, '4', **bkg_props)
         ax.set_xlim(expanded_range)
         ax.set_ylim(expanded_range)
         ax.set_xticks(self.value_minmax, minor=False)
