@@ -20,7 +20,7 @@ class Todo(object):
         except FileNotFoundError: 
             self.df = pd.DataFrame(columns=self.todo_columns)
         else:
-            self.df.sort_values(by='priority', ascending=False)
+            self.df.sort_values(by='priority', ascending=False, inplace=True)
 
     def add_task(self, description, importance, cost):
         newtask = pd.Series({
@@ -32,11 +32,12 @@ class Todo(object):
             'completed': False,
         })
         self.df = self.df.append(newtask, ignore_index=True)
+        self.df.sort_values(by='priority', ascending=False, inplace=True)
         self.df.to_csv(self.fpath, index=False)
 
     def plot(self):
         fig,ax = plt.subplots(figsize=(10,4))
-        for i,task in self.df.iterrows():
+        for i,(idx,task) in enumerate(self.df.iterrows()):
             try:
                 completed_on = pd.to_datetime(task['completed']).strftime('%Y-%m-%d %H:%M')
             except ValueError:
