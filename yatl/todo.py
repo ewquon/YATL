@@ -28,6 +28,9 @@ class Todo(object):
                             ascending=[False,False,True],
                             inplace=True)
 
+    def _save(self):
+        self.df.to_csv(self.fpath, index=False)
+
     def add_task(self, description, importance, cost):
         newtask = pd.Series({
             'datetime': pd.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), # task creation timestamp
@@ -39,9 +42,20 @@ class Todo(object):
         })
         self.df = self.df.append(newtask, ignore_index=True)
         self._sort_list()
-        self.df.to_csv(self.fpath, index=False)
+        self._save()
 
-    def _plot_offset(self, frac=0.05):
+    def mark_complete(self, i):
+        """Mark task as completed with the current datetime"""
+        try:
+            completed_on = pd.to_datetime(self.df.loc[i,'completed'])
+        except (ValueError, TypeError):
+            self.df.loc[i,'completed'] = pd.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            self._save()
+        else:
+            print('Task',i,'already completed:')
+            print(self.df.loc[i])
+
+    def _plot_offset(self, frac=0.025):
         maxdisp = frac * (self.value_minmax[1] - self.value_minmax[0])
         return maxdisp * (2*np.random.random_sample() - 1)
 
@@ -52,20 +66,20 @@ class Todo(object):
         """
         if plot:
             fig,ax = plt.subplots(figsize=(10,4))
-        for i,(idx,task) in enumerate(self.df.iterrows()):
+        for i,task in self.df.iterrows():
             try:
                 completed_on = pd.to_datetime(task['completed']).strftime('%Y-%m-%d %H:%M')
             except (ValueError, TypeError):
                 # task incomplete
                 labelcolor = 'r'
-                labelstr = '{:d} : {:s}'.format(i+1, task['description'])
+                labelstr = '{:d} : {:s}'.format(i, task['description'])
                 style = dict(marker=r'${:s}$'.format(self.incomplete_mark),
                              color=labelcolor, label=labelstr)
             else:
                 # task completed
                 labelcolor = 'g'
                 labelstr = '{:d} : {:s}, completed {:s}'.format(
-                        i+1, task['description'], completed_on)
+                        i, task['description'], completed_on)
                 style = dict(marker=r'${:s}$'.format(self.complete_mark),
                              color=labelcolor, label=labelstr)
             print(labelstr)
