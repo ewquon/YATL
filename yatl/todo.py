@@ -45,7 +45,7 @@ class Todo(object):
         for i,(idx,task) in enumerate(self.df.iterrows()):
             try:
                 completed_on = pd.to_datetime(task['completed']).strftime('%Y-%m-%d %H:%M')
-            except ValueError:
+            except (ValueError, TypeError):
                 # task incomplete
                 labelcolor = 'r'
                 labelstr = '{:d} : {:s}'.format(i+1, task['description'])
