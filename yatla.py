@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 #
 # Yet Another Todo List Application
-# (command line interface)
 #
 import os
 from yatl.todo import Todo
