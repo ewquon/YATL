@@ -75,6 +75,7 @@ class Todo(object):
                 labelstr = '{:d} : {:s}'.format(i, task['description'])
                 style = dict(marker=r'${:s}$'.format(self.incomplete_mark),
                              color=labelcolor, label=labelstr)
+                print('[ ] {:s}'.format(labelstr))
             else:
                 # task completed
                 labelcolor = 'g'
@@ -82,7 +83,7 @@ class Todo(object):
                         i, task['description'], completed_on)
                 style = dict(marker=r'${:s}$'.format(self.complete_mark),
                              color=labelcolor, label=labelstr)
-            print(labelstr)
+                print('[{:s}] {:s}'.format(self.complete_mark,labelstr))
             if plot:
                 xloc = task['cost'] + self._plot_offset()
                 yloc = task['importance'] + self._plot_offset()
