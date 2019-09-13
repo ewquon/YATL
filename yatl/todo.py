@@ -5,7 +5,14 @@ import pandas as pd
 class Todo(object):
     """Object to contain a dataframe with tasks as rows"""
 
-    todo_columns = ['datetime','description','importance','cost','priority','completed']
+    todo_columns = [
+        'datetime',
+        'description',
+        'importance',
+        'cost',
+        'priority',
+        'completed',
+    ]
     complete_mark='✔'
     incomplete_mark='✘'
 
