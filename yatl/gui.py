@@ -7,6 +7,10 @@ class TaskList(tk.Frame):
     """Based on:
     https://stackoverflow.com/questions/50398649/python-tkinter-tk-support-checklist-box
     """
+    row_color_cycle = [
+        '#cbd7e9',
+        '#e7ecf4',
+    ]
     def __init__(self, parent, df, **kwargs):
         """Create a checklist, defined as a dictionary of bool"""
         # TODO: implement scrolling frame
@@ -18,15 +22,16 @@ class TaskList(tk.Frame):
         self.completed = [] # BooleanVars
         self.description = [] # StringVars
         self.removeme = [] # Button widgets
-        self.bg = self.cget("background")
+        self.bg = self.cget("background") # system-specific
         for irow,(idx,task) in enumerate(self.df.iterrows()):
+            rowcolor = self.row_color_cycle[irow % len(self.row_color_cycle)]
             completed = False if task['completed'] is False else True
             # Create checkbox and task description
             var = tk.BooleanVar(value=completed)
             text = tk.StringVar(value=task['description'])
             cb = tk.Checkbutton(self, var=var, textvar=text,
                                 onvalue=True, offvalue=False,
-                                anchor="w", width=50, background=self.bg,
+                                anchor="w", width=50, background=rowcolor,
                                 relief="flat", highlightthickness=0,
                                 command=lambda i=irow: self.update_complete(i),
                                )
