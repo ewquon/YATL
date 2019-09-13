@@ -35,15 +35,17 @@ class TaskList(tk.Frame):
                         pd.to_datetime(task['completed']).strftime(self.datetime_format))
             except ValueError:
                 completed = False
+                state = 'normal'
                 textcolor = self.active_text_color
             else:
                 completed = True
+                state = 'disabled'
                 textcolor = self.inactive_text_color
             # Create checkbox and task description
             var = tk.BooleanVar(value=completed)
             text = tk.StringVar(value=description)
             cb = tk.Checkbutton(self, var=var, textvar=text,
-                                onvalue=True, offvalue=False,
+                                onvalue=True, offvalue=False, state=state,
                                 anchor="w", width=50,
                                 fg=textcolor, background=rowcolor,
                                 relief="flat", highlightthickness=0,
