@@ -22,7 +22,7 @@ class TaskList(tk.Frame):
         self.df = df
         print(id(self.df))
         self.orig_description = df['description']
-        self.checkbuttons = [] # Checkbutton widgets
+        self.checkbutton = [] # Checkbutton widgets
         self.completed = [] # BooleanVars
         self.description = [] # StringVars
         self.removeme = [] # Button widgets
@@ -55,8 +55,8 @@ class TaskList(tk.Frame):
             xbutton = tk.Button(self, text=' X ',
                                 command=lambda i=irow: self.remove_row(i))
             xbutton.grid(row=irow, column=1)
-            # save widgets and associated
-            self.checkbuttons.append(cb)
+            # save widgets and associated variables
+            self.checkbutton.append(cb)
             self.completed.append(var)
             self.description.append(text)
             self.removeme.append(xbutton)
@@ -75,9 +75,9 @@ class TaskList(tk.Frame):
     def remove_row(self, irow):
         # TODO: add messagebox confirmation
         print('Remove row',irow,':',self.description[irow].get())
-        self.checkbuttons[irow].grid_forget()
+        self.checkbutton[irow].grid_forget()
         self.removeme[irow].grid_forget()
-        #self.checkbuttons.pop(irow)
+        #self.checkbutton.pop(irow)
         #self.removeme.pop(irow)
         # TODO: update tasks, completed,removeme
 
@@ -106,14 +106,25 @@ class YATLApp(object):
 
 
 if __name__ == '__main__':
-    #df = {'a':True,'b':True,'d':False}
-    df = pd.DataFrame({
-        'description': ['a','b','d'],
-        'completed': [True,True,False],
-    })
-    print(id(df))
+    import os
+    from yatl.todo import Todo
+    try:
+        YATL_PATH = os.environ['YATL_PATH']
+    except KeyError:
+        YATL_PATH = os.environ['HOME']
+    finally:
+        if os.path.isdir(YATL_PATH):
+            YATL_PATH = os.path.join(YATL_PATH, 'yet_another_todo.list')
+
+    #df = pd.DataFrame({
+    #    'description': ['a','b','d'],
+    #    'completed': [True,True,False],
+    #})
+    todo = Todo(YATL_PATH)
+    print(id(todo.df))
+
     root = tk.Tk()
     root.title('Yet Another Todo List')
-    mygui = YATLApp(root, df)
+    mygui = YATLApp(root, todo.df)
     root.mainloop()
 

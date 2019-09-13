@@ -1,6 +1,13 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
+
+# to avoid NSException when initializing Tkinter gui
+# (see https://github.com/MTG/sms-tools/issues/29)
+# - matplotlib.use() should come before the matplotlib.pyplot import
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+
 
 class Todo(object):
     """Object to contain a dataframe with tasks as rows"""
