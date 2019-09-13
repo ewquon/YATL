@@ -7,10 +7,14 @@ class TaskList(tk.Frame):
     """Based on:
     https://stackoverflow.com/questions/50398649/python-tkinter-tk-support-checklist-box
     """
+    active_text_color = 'blue'
+    inactive_text_color = 'black'
     row_color_cycle = [
         '#cbd7e9',
         '#e7ecf4',
     ]
+    datetime_format = '%a %m/%d %H:%M'
+
     def __init__(self, parent, df, **kwargs):
         """Create a checklist, defined as a dictionary of bool"""
         # TODO: implement scrolling frame
@@ -25,13 +29,23 @@ class TaskList(tk.Frame):
         self.bg = self.cget("background") # system-specific
         for irow,(idx,task) in enumerate(self.df.iterrows()):
             rowcolor = self.row_color_cycle[irow % len(self.row_color_cycle)]
-            completed = False if task['completed'] is False else True
+            description = task['description']
+            try:
+                description += ' (completed {:s})'.format(
+                        pd.to_datetime(task['completed']).strftime(self.datetime_format))
+            except ValueError:
+                completed = False
+                textcolor = self.active_text_color
+            else:
+                completed = True
+                textcolor = self.inactive_text_color
             # Create checkbox and task description
             var = tk.BooleanVar(value=completed)
-            text = tk.StringVar(value=task['description'])
+            text = tk.StringVar(value=description)
             cb = tk.Checkbutton(self, var=var, textvar=text,
                                 onvalue=True, offvalue=False,
-                                anchor="w", width=50, background=rowcolor,
+                                anchor="w", width=50,
+                                fg=textcolor, background=rowcolor,
                                 relief="flat", highlightthickness=0,
                                 command=lambda i=irow: self.update_complete(i),
                                )
@@ -51,10 +65,12 @@ class TaskList(tk.Frame):
         if self.completed[irow].get() is True:
             self.description[irow].set(
                 '{:s} (completed {:s})'.format(self.orig_description[irow],
-                                               pd.datetime.now().strftime('%Y-%m-%d %H:%M'))
+                                               pd.datetime.now().strftime(self.datetime_format))
             )
+            self.checkbutton[irow].config(fg=self.inactive_text_color)
         else:
             self.description[irow].set(self.orig_description[irow])
+            self.checkbutton[irow].config(fg=self.active_text_color)
 
     def remove_row(self, irow):
         # TODO: add messagebox confirmation
