@@ -171,20 +171,9 @@ class YATLApp(object):
 
 
 if __name__ == '__main__':
-    import os
+    from yatla import YATL_PATH
     from yatl.todo import Todo
-    try:
-        YATL_PATH = os.environ['YATL_PATH']
-    except KeyError:
-        YATL_PATH = os.environ['HOME']
-    finally:
-        if os.path.isdir(YATL_PATH):
-            YATL_PATH = os.path.join(YATL_PATH, 'yet_another_todo.list')
 
-    #df = pd.DataFrame({
-    #    'description': ['a','b','d'],
-    #    'completed': [True,True,False],
-    #})
     todo = Todo(YATL_PATH)
     print(id(todo.df))
 
