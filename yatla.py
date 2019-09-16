@@ -4,8 +4,6 @@
 #
 import os
 
-debug = True
-
 # try to get default YATL_PATH from environment
 try:
     YATL_PATH = os.environ['YATL_PATH']
@@ -14,9 +12,6 @@ except KeyError:
 finally:
     if os.path.isdir(YATL_PATH):
         YATL_PATH = os.path.join(YATL_PATH, 'yet_another_todo.list')
-
-if debug:
-    print('todo list:',YATL_PATH)
 
 yatl_description = """
 Launcher for Yet Another Todo List (YATL). The default todo list
@@ -45,8 +40,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     todo = Todo(args.yatl_path)
-    if debug:
-        print(id(todo.df))
 
     if args.plot:
         todo.plot()

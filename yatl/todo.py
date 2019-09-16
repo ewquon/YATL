@@ -36,12 +36,12 @@ class Todo(object):
         """
         self.fpath = fpath
         self.value_minmax = value_minmax
-        self.value_split = np.mean(value_minmax)
         self.changed = False
         self._read_list()
 
     def _read_list(self):
         # make sure temp file doesn't exist
+        print('Todo list:',self.fpath)
         pathsplit = os.path.split(self.fpath)
         self.fpath_tmp = os.path.join(pathsplit[0], '.'+pathsplit[1])
         assert (not os.path.isfile(self.fpath_tmp)), \
@@ -177,8 +177,9 @@ class Todo(object):
         # update formatting
         expanded_range = (self.value_minmax[0] - 0.25,
                           self.value_minmax[1] + 0.25)
-        ax.axhline(self.value_split, ls='-', color='k')
-        ax.axvline(self.value_split, ls='-', color='k')
+        value_split = np.mean(self.value_minmax)
+        ax.axhline(value_split, ls='-', color='k')
+        ax.axvline(value_split, ls='-', color='k')
         bkg_props = {
             'color': '0.7',
             'fontfamily': 'sans-serif',
