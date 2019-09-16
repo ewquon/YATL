@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pandas as pd
 
@@ -30,6 +31,12 @@ class Todo(object):
         self._read_list()
 
     def _read_list(self):
+        # make sure temp file doesn't exist
+        pathsplit = os.path.split(self.fpath)
+        self.fpath_tmp = os.path.join(pathsplit[0], '.'+pathsplit[1])
+        assert (not os.path.isfile(self.fpath_tmp)), \
+                self.fpath_tmp+' exists, todo list was not properly saved'
+        # load todo list
         try:
             self.df = pd.read_csv(self.fpath)
         except FileNotFoundError: 
@@ -42,8 +49,13 @@ class Todo(object):
                             ascending=[False,False,True],
                             inplace=True)
 
-    def _save(self):
-        self.df.to_csv(self.fpath, index=False)
+    def _save(self,overwrite=False):
+        if overwrite:
+            self.df.to_csv(self.fpath, index=False)
+            print('Saved',self.fpath)
+            os.remove(self.fpath_tmp)
+        else:
+            self.df.to_csv(self.fpath_tmp, index=False)
 
     def add_task(self, description, importance, cost):
         newtask = pd.Series({
