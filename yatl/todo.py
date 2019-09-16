@@ -140,7 +140,7 @@ class Todo(object):
                              color=labelcolor, label=labelstr)
                 print('[{:s}] {:s}'.format(self.complete_mark,labelstr))
 
-    def plot(self,fig=None,ax=None):
+    def plot(self,fig=None,ax=None,legend=True):
         """Make a scatterplot of the current tasks on time vs
         importance axes.
         """
@@ -192,7 +192,7 @@ class Todo(object):
         ax.set_yticklabels(['-','+'])
         ax.set_xlabel('time commitment')
         ax.set_ylabel('importance')
-        ax.legend(loc='upper left', bbox_to_anchor=(1.05,1))
+        if legend:
+            ax.legend(loc='upper left', bbox_to_anchor=(1.05,1))
         fig.tight_layout()
-        plt.show()
 
