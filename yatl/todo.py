@@ -104,11 +104,16 @@ class Todo(object):
         self._sort_list()
         self.save()
 
+    def _get_completion_datetime(self, i):
+        try:
+            return pd.to_datetime(self.df.loc[i,'completed'])
+        except (ValueError, TypeError):
+            return None
+
     def mark_complete(self, i):
         """Mark task as completed with the current datetime"""
-        try:
-            completed_on = pd.to_datetime(self.df.loc[i,'completed'])
-        except (ValueError, TypeError):
+        completed_on = self._get_completion_datetime(i)
+        if completed_on is None:
             self.df.loc[i,'completed'] = pd.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             self.save()
         else:
@@ -124,9 +129,8 @@ class Todo(object):
         importance. 
         """
         for i,task in self.df.iterrows():
-            try:
-                completed_on = pd.to_datetime(task['completed']).strftime('%Y-%m-%d %H:%M')
-            except (ValueError, TypeError):
+            completed_on = self._get_completion_datetime(i)
+            if completed_on is None:
                 # task incomplete
                 labelcolor = 'r'
                 labelstr = '{:d} : {:s}'.format(i, task['description'])
@@ -137,7 +141,7 @@ class Todo(object):
                 # task completed
                 labelcolor = 'g'
                 labelstr = '{:d} : {:s}, completed {:s}'.format(
-                        i, task['description'], completed_on)
+                        i, task['description'], str(completed_on))
                 style = dict(marker=r'${:s}$'.format(self.complete_mark),
                              color=labelcolor, label=labelstr)
                 print('[{:s}] {:s}'.format(self.complete_mark,labelstr))
@@ -152,9 +156,8 @@ class Todo(object):
             fig,ax = plt.subplots(figsize=(10,4))
         # loop over tasks, checking for completion
         for i,task in self.df.iterrows():
-            try:
-                completed_on = pd.to_datetime(task['completed']).strftime('%Y-%m-%d %H:%M')
-            except (ValueError, TypeError):
+            completed_on = self._get_completion_datetime(i)
+            if completed_on is None:
                 # task incomplete
                 labelcolor = 'r'
                 labelstr = '{:d} : {:s}'.format(i, task['description'])
@@ -164,7 +167,7 @@ class Todo(object):
                 # task completed
                 labelcolor = 'g'
                 labelstr = '{:d} : {:s}, completed {:s}'.format(
-                        i, task['description'], completed_on)
+                        i, task['description'], str(completed_on))
                 style = dict(marker=r'${:s}$'.format(self.complete_mark),
                              color=labelcolor, label=labelstr)
             # add offset to prevent tasks from perfectly overlapping on plot
