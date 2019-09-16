@@ -124,14 +124,14 @@ class TaskCreator(tk.Frame):
         self.description_entry = tk.Entry(self,
                                           width=default_task_charlen,
                                           textvariable=self.task_description)
-        self.importance_label = tk.Label(self, text='importance', anchor='s')
+        label0 = tk.Label(self, text='importance', anchor='s')
         self.importance_ctrl = tk.Scale(self,
                                         orient='horizontal', length=200,
                                         variable=self.importance,
                                         from_=value_minmax[0],
                                         to=value_minmax[1],
                                         resolution=1.0)
-        self.cost_label = tk.Label(self, text='cost', anchor='s')
+        label1 = tk.Label(self, text='cost', anchor='s')
         self.cost_ctrl = tk.Scale(self,
                                   orient='horizontal', length=200,
                                   variable=self.cost,
@@ -139,7 +139,7 @@ class TaskCreator(tk.Frame):
                                   to=value_minmax[1],
                                   resolution=1.0)
         bg = self.cget("background") # system-specific
-        self.spacer = tk.Frame(self, height=10, bg=bg)
+        spacer = tk.Frame(self, height=10, bg=bg)
         self.add_task_button = tk.Button(self,
                                          text='add task',
                                          fg='blue',
@@ -147,11 +147,11 @@ class TaskCreator(tk.Frame):
                                          command=self.add_task)
         # create layout
         self.description_entry.pack()
-        self.importance_label.pack()
+        label0.pack()
         self.importance_ctrl.pack()
-        self.cost_label.pack()
+        label1.pack()
         self.cost_ctrl.pack()
-        self.spacer.pack()
+        spacer.pack()
         self.add_task_button.pack()
 
     def add_task(self):
@@ -194,12 +194,12 @@ class YATLApp(object):
         """
         self.master = master
         self.todo = todo
-        self.tasklist = TaskList(master, self.todo)
-        self.taskplot = TaskPlot(master, self.todo)
-        self.taskctrl = TaskCreator(master, self.todo)
-        self.tasklist.pack()
-        self.taskplot.pack()
-        self.taskctrl.pack()
+        tasklist = TaskList(master, self.todo)
+        taskplot = TaskPlot(master, self.todo)
+        taskctrl = TaskCreator(master, self.todo)
+        tasklist.pack()
+        taskplot.pack()
+        taskctrl.pack()
         # catch closing event
         self.master.protocol('WM_DELETE_WINDOW', self.onclose)
 
