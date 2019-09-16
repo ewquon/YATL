@@ -30,13 +30,17 @@ class TaskList(tk.Frame):
         # TODO: implement scrolling frame
         tk.Frame.__init__(self, parent, **kwargs)
         self.todo = todo
-        df = self.todo.df
-        self.orig_description = df['description']
-        self.checkbutton = [] # Checkbutton widgets
-        self.completed = [] # BooleanVars
-        self.description = [] # StringVars
-        self.removeme = [] # Button widgets
-        for irow,(idx,task) in enumerate(df.iterrows()):
+        self.orig_description = self.todo.df['description']
+        self.checkbutton = dict() # Checkbutton widgets
+        self.completed = dict() # BooleanVars
+        self.description = dict() # StringVars
+        self.removeme = dict() # Button widgets
+        self.update()
+
+    def update(self):
+        """Recreate task list elements"""
+        self.todo.sort_list()
+        for irow,(idx,task) in enumerate(self.todo.df.iterrows()):
             rowcolor = self.row_color_cycle[irow % len(self.row_color_cycle)]
             description = task['description']
             try:
@@ -58,46 +62,48 @@ class TaskList(tk.Frame):
                                 anchor="w", width=default_task_charlen,
                                 fg=textcolor, background=rowcolor,
                                 relief="flat", highlightthickness=0,
-                                command=lambda i=irow: self.update_complete(i),
+                                command=lambda i=idx: self.update_complete(i),
                                )
             cb.grid(row=irow,column=0)
             # Create accompanying remove button
             # - note that the command is not evaluated until it is clicked
             xbutton = tk.Button(self, text=' X ',
-                                command=lambda i=irow: self.remove_row(i))
+                                command=lambda i=idx: self.remove_row(i))
             xbutton.grid(row=irow, column=1)
             # save widgets and associated variables
-            self.checkbutton.append(cb)
-            self.completed.append(var)
-            self.description.append(text)
-            self.removeme.append(xbutton)
+            self.checkbutton[idx] = cb
+            self.completed[idx] = var
+            self.description[idx] = text
+            self.removeme[idx] = xbutton
 
-    def update_complete(self, irow):
+    def update_complete(self, idx):
         """Callback function for when a task is checked or unchecked
 
         Only callable for tasks that were not previously completed and
         saved. Note that each time the checkbox is checked, the task
         completion time will be updated.
         """
-        if self.completed[irow].get() is True:
-            self.description[irow].set(
-                '{:s} (completed {:s})'.format(self.orig_description[irow],
+        if self.completed[idx].get() is True:
+            self.description[idx].set(
+                '{:s} (completed {:s})'.format(self.orig_description[idx],
                                                pd.datetime.now().strftime(self.datetime_format))
             )
-            self.checkbutton[irow].config(fg=self.inactive_text_color)
+            self.checkbutton[idx].config(fg=self.inactive_text_color)
         else:
-            self.description[irow].set(self.orig_description[irow])
-            self.checkbutton[irow].config(fg=self.active_text_color)
+            self.description[idx].set(self.orig_description[idx])
+            self.checkbutton[idx].config(fg=self.active_text_color)
 
-    def remove_row(self, irow):
+    def remove_row(self, idx):
         """Remove task from list"""
-        # TODO: add messagebox confirmation
-        print('Remove row',irow,':',self.description[irow].get())
-        self.checkbutton[irow].grid_forget()
-        self.removeme[irow].grid_forget()
-        #self.checkbutton.pop(irow)
-        #self.removeme.pop(irow)
+        if self.completed[idx].get() is False:
+            # confirm delete for incomplete task
+            if not msg.askyesno('Delete task', 'Delete incomplete task?'):
+                return
+        print('Remove task',idx,':',self.description[idx].get())
+        self.checkbutton[idx].grid_forget()
+        self.removeme[idx].grid_forget()
         # TODO: update tasks, completed,removeme
+        self.todo.delete_task(idx)
 
     #def update(self):
         # TODO: update checkbox states and text
