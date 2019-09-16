@@ -18,7 +18,7 @@ class TaskList(tk.Frame):
     datetime_format = '%a %m/%d %H:%M'
 
     def __init__(self, parent, df, **kwargs):
-        """Create a checklist, defined as a dictionary of bool"""
+        """Create a checklist from a dataframe of tasks"""
         # TODO: implement scrolling frame
         tk.Frame.__init__(self, parent, **kwargs)
         self.df = df
@@ -65,6 +65,12 @@ class TaskList(tk.Frame):
             self.removeme.append(xbutton)
 
     def update_complete(self, irow):
+        """Callback function for when a task is checked or unchecked
+
+        Only callable for tasks that were not previously completed and
+        saved. Note that each time the checkbox is checked, the task
+        completion time will be updated.
+        """
         if self.completed[irow].get() is True:
             self.description[irow].set(
                 '{:s} (completed {:s})'.format(self.orig_description[irow],
@@ -76,6 +82,7 @@ class TaskList(tk.Frame):
             self.checkbutton[irow].config(fg=self.active_text_color)
 
     def remove_row(self, irow):
+        """Remove task from list"""
         # TODO: add messagebox confirmation
         print('Remove row',irow,':',self.description[irow].get())
         self.checkbutton[irow].grid_forget()
@@ -90,14 +97,6 @@ class TaskList(tk.Frame):
     def update_plot(self):
         # TODO: figure out how to reference plot in separate canvas
         print('Update plot')
-
-    def getCheckedItems(self):
-        values = []
-        for var in self.vars:
-            value =  var.get()
-            if value:
-                values.append(value)
-        return values
 
 
 class TaskCreator(tk.Frame):
@@ -148,6 +147,7 @@ class TaskCreator(tk.Frame):
         self.add_task_button.pack()
 
     def add_task(self):
+        """Add a new task to the todo list"""
         description = self.description_entry.get()
         importance = self.importance.get()
         cost = self.cost.get()
@@ -157,8 +157,18 @@ class TaskCreator(tk.Frame):
         self.description_entry.insert(0, self.default_description)
 
 
+class TaskPlot(tk.Frame):
+
+
 class YATLApp(object):
     def __init__(self, master, todo):
+        """Container for the YATL application
+
+        Parameters
+        ----------
+        master : Tk object
+        todo : yatl.todo object
+        """
         self.master = master
         self.todo = todo
         self.todolist = TaskList(master, self.todo.df)

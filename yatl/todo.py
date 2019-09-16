@@ -25,6 +25,15 @@ class Todo(object):
     incomplete_mark='✘'
 
     def __init__(self, fpath, value_minmax=(1,4)):
+        """Create a new todo list from the specified file
+
+        Parameters
+        ----------
+        fpath : str
+            Path to todo list, stored as a dataframe
+        value_minmax : list or tuple, optional
+            Minimum/maximum values for importance and cost
+        """
         self.fpath = fpath
         self.value_minmax = value_minmax
         self.value_split = np.mean(value_minmax)
@@ -58,6 +67,20 @@ class Todo(object):
             self.df.to_csv(self.fpath_tmp, index=False)
 
     def add_task(self, description, importance, cost):
+        """Add a new task at the current time with the specified
+        importance and cost values, calculating priority as the ratio
+        of importance to cost
+
+        Parameters
+        ----------
+            description : str
+            importance : float
+                In the range of value_minmax, with higher being more
+                important
+            cost : float
+                In the range of value_minmax, with higher being more
+                time consuming
+        """
         newtask = pd.Series({
             'datetime': pd.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), # task creation timestamp
             'description': description,
