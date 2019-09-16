@@ -204,11 +204,14 @@ class YATLApp(object):
         self.master.protocol('WM_DELETE_WINDOW', self.onclose)
 
     def onclose(self):
-        action = msg.askyesnocancel("Quit", "Save todo list?")
-        if action is True:
-            self.todo.save(overwrite=True)
-        elif action is False:
-            self.todo.remove_temp()
+        if self.todo.changed is True:
+            action = msg.askyesnocancel("Quit", "Save todo list?")
+            if action is True:
+                self.todo.save(overwrite=True)
+            elif action is False:
+                self.todo.remove_temp()
+        else:
+            action = True
         if action is not None:
             # clean exit
             self.master.quit()      # stops mainloop

@@ -37,6 +37,7 @@ class Todo(object):
         self.fpath = fpath
         self.value_minmax = value_minmax
         self.value_split = np.mean(value_minmax)
+        self.changed = False
         self._read_list()
 
     def _read_list(self):
@@ -65,6 +66,7 @@ class Todo(object):
             print('Saved',self.fpath)
             self.remove_temp()
         else:
+            self.changed = True
             self.df.to_csv(self.fpath_tmp, index=False)
 
     def remove_temp(self):
