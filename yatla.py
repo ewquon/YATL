@@ -23,4 +23,5 @@ if debug:
 if __name__ == '__main__':
     todo = Todo(YATL_PATH)
     #todo.add_task('Email Jeff re FY20 AOP', importance=3, cost=1)
+    todo.review()
     todo.plot()

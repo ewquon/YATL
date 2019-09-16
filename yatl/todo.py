@@ -85,13 +85,10 @@ class Todo(object):
         maxdisp = frac * (self.value_minmax[1] - self.value_minmax[0])
         return maxdisp * (2*np.random.random_sample() - 1)
 
-    def review(self,plot=False):
+    def review(self):
         """Print the current todo list, sorted by priority and
-        importance. Optionally, make a scatterplot of the current tasks
-        on time-importance axes.
+        importance. 
         """
-        if plot:
-            fig,ax = plt.subplots(figsize=(10,4))
         for i,task in self.df.iterrows():
             try:
                 completed_on = pd.to_datetime(task['completed']).strftime('%Y-%m-%d %H:%M')
@@ -110,41 +107,60 @@ class Todo(object):
                 style = dict(marker=r'${:s}$'.format(self.complete_mark),
                              color=labelcolor, label=labelstr)
                 print('[{:s}] {:s}'.format(self.complete_mark,labelstr))
-            if plot:
-                xloc = task['cost'] + self._plot_offset()
-                yloc = task['importance'] + self._plot_offset()
-                ax.plot(xloc, yloc, ls='none', **style)
 
-        if plot:
-            # update formatting
-            expanded_range = (self.value_minmax[0] - 0.25,
-                              self.value_minmax[1] + 0.25)
-            ax.axhline(self.value_split, ls='-', color='k')
-            ax.axvline(self.value_split, ls='-', color='k')
-            bkg_props = {
-                'color': '0.7',
-                'fontfamily': 'sans-serif',
-                'fontsize': 'xx-large',
-                'horizontalalignment': 'left',
-                'verticalalignment': 'top',
-                'transform': ax.transAxes,
-            }
-            ax.text(0.05, 0.95, '1', **bkg_props)
-            ax.text(0.55, 0.95, '2', **bkg_props)
-            ax.text(0.05, 0.45, '3', **bkg_props)
-            ax.text(0.55, 0.45, '4', **bkg_props)
-            ax.set_xlim(expanded_range)
-            ax.set_ylim(expanded_range)
-            ax.set_xticks(self.value_minmax, minor=False)
-            ax.set_yticks(self.value_minmax, minor=False)
-            ax.set_xticklabels(['-','+'])
-            ax.set_yticklabels(['-','+'])
-            ax.set_xlabel('time commitment')
-            ax.set_ylabel('importance')
-            ax.legend(loc='upper left', bbox_to_anchor=(1.05,1))
-            fig.tight_layout()
-            plt.show()
+    def plot(self,fig=None,ax=None):
+        """Make a scatterplot of the current tasks on time vs
+        importance axes.
+        """
+        if (fig is None) or (ax is None):
+            fig,ax = plt.subplots(figsize=(10,4))
+        # loop over tasks, checking for completion
+        for i,task in self.df.iterrows():
+            try:
+                completed_on = pd.to_datetime(task['completed']).strftime('%Y-%m-%d %H:%M')
+            except (ValueError, TypeError):
+                # task incomplete
+                labelcolor = 'r'
+                labelstr = '{:d} : {:s}'.format(i, task['description'])
+                style = dict(marker=r'${:s}$'.format(self.incomplete_mark),
+                             color=labelcolor, label=labelstr)
+            else:
+                # task completed
+                labelcolor = 'g'
+                labelstr = '{:d} : {:s}, completed {:s}'.format(
+                        i, task['description'], completed_on)
+                style = dict(marker=r'${:s}$'.format(self.complete_mark),
+                             color=labelcolor, label=labelstr)
+            # add offset to prevent tasks from perfectly overlapping on plot
+            xloc = task['cost'] + self._plot_offset()
+            yloc = task['importance'] + self._plot_offset()
+            ax.plot(xloc, yloc, ls='none', **style)
+        # update formatting
+        expanded_range = (self.value_minmax[0] - 0.25,
+                          self.value_minmax[1] + 0.25)
+        ax.axhline(self.value_split, ls='-', color='k')
+        ax.axvline(self.value_split, ls='-', color='k')
+        bkg_props = {
+            'color': '0.7',
+            'fontfamily': 'sans-serif',
+            'fontsize': 'xx-large',
+            'horizontalalignment': 'left',
+            'verticalalignment': 'top',
+            'transform': ax.transAxes,
+        }
+        ax.text(0.05, 0.95, '1', **bkg_props)
+        ax.text(0.55, 0.95, '2', **bkg_props)
+        ax.text(0.05, 0.45, '3', **bkg_props)
+        ax.text(0.55, 0.45, '4', **bkg_props)
+        ax.set_xlim(expanded_range)
+        ax.set_ylim(expanded_range)
+        ax.set_xticks(self.value_minmax, minor=False)
+        ax.set_yticks(self.value_minmax, minor=False)
+        ax.set_xticklabels(['-','+'])
+        ax.set_yticklabels(['-','+'])
+        ax.set_xlabel('time commitment')
+        ax.set_ylabel('importance')
+        ax.legend(loc='upper left', bbox_to_anchor=(1.05,1))
+        fig.tight_layout()
+        plt.show()
 
-    def plot(self):
-        """Convenience function for review(plot=True)"""
-        self.review(plot=True)
