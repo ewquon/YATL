@@ -211,9 +211,9 @@ class YATLApp(object):
             self.todo.remove_temp()
         if action is not None:
             # clean exit
-            root.quit()     # stops mainloop
-            root.destroy()  # this is necessary on Windows to prevent
-                            # Fatal Python Error: PyEval_RestoreThread: NULL tstate
+            self.master.quit()      # stops mainloop
+            self.master.destroy()   # this is necessary on Windows to prevent
+                                    # Fatal Python Error: PyEval_RestoreThread: NULL tstate
 
 
 if __name__ == '__main__':
