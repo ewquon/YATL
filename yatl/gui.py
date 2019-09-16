@@ -25,18 +25,18 @@ class TaskList(tk.Frame):
     ]
     datetime_format = '%a %m/%d %H:%M'
 
-    def __init__(self, parent, df, **kwargs):
+    def __init__(self, parent, todo, **kwargs):
         """Create a checklist from a dataframe of tasks"""
         # TODO: implement scrolling frame
         tk.Frame.__init__(self, parent, **kwargs)
-        self.df = df
-        print(id(self.df))
+        self.todo = todo
+        df = self.todo.df
         self.orig_description = df['description']
         self.checkbutton = [] # Checkbutton widgets
         self.completed = [] # BooleanVars
         self.description = [] # StringVars
         self.removeme = [] # Button widgets
-        for irow,(idx,task) in enumerate(self.df.iterrows()):
+        for irow,(idx,task) in enumerate(df.iterrows()):
             rowcolor = self.row_color_cycle[irow % len(self.row_color_cycle)]
             description = task['description']
             try:
@@ -194,7 +194,7 @@ class YATLApp(object):
         """
         self.master = master
         self.todo = todo
-        self.tasklist = TaskList(master, self.todo.df)
+        self.tasklist = TaskList(master, self.todo)
         self.taskplot = TaskPlot(master, self.todo)
         self.taskctrl = TaskCreator(master, self.todo)
         self.tasklist.pack()
