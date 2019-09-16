@@ -18,6 +18,13 @@ finally:
 if debug:
     print('todo list:',YATL_PATH)
 
+yatl_description = """
+Launcher for Yet Another Todo List (YATL). The default todo list
+location (a file or directory path) may be overwritten with the
+`YATL_PATH` environment variable. It may be useful to set this
+path to a cloud-backed-up location.
+"""
+
 #
 # Start here
 #
@@ -25,7 +32,10 @@ if __name__ == '__main__':
     import argparse
     from yatl.todo import Todo
 
-    parser = argparse.ArgumentParser(description='Yet Another Todo List Application')
+    parser = argparse.ArgumentParser(
+        prog='Yet Another Todo List Application',
+        description=yatl_description,
+    )
     parser.add_argument('yatl_path', metavar='fpath', type=str, nargs='?',
                         default=YATL_PATH,
                         help='Path to YATL todo list [default: {:s}]'.format(YATL_PATH))
