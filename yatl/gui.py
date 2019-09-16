@@ -3,6 +3,14 @@ import pandas as pd
 import tkinter as tk
 import tkinter.messagebox as msg
 
+# to avoid NSException when initializing Tkinter gui
+# (see https://github.com/MTG/sms-tools/issues/29)
+# - matplotlib.use() should come before the matplotlib.pyplot import
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 default_task_charlen = 50
 
 class TaskList(tk.Frame):
@@ -158,7 +166,22 @@ class TaskCreator(tk.Frame):
 
 
 class TaskPlot(tk.Frame):
+    """Based on:
+    https://matplotlib.org/3.1.0/gallery/user_interfaces/embedding_in_tk_sgskip.html
+    """
 
+    def __init__(self, parent, todo, figsize=(2,2), **kwargs):
+        """Create canvas for time vs importance plot"""
+        tk.Frame.__init__(self, parent, **kwargs)
+        self.todo = todo
+        # Make the plot
+        self.fig, self.ax = plt.subplots(figsize=figsize)
+        self.todo.plot(fig=self.fig, ax=self.ax, legend=False)
+        # Create the canvas, a tk.DrawingArea
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack()
+ 
 
 class YATLApp(object):
     def __init__(self, master, todo):
@@ -171,13 +194,26 @@ class YATLApp(object):
         """
         self.master = master
         self.todo = todo
-        self.todolist = TaskList(master, self.todo.df)
+        self.tasklist = TaskList(master, self.todo.df)
+        self.taskplot = TaskPlot(master, self.todo)
         self.taskctrl = TaskCreator(master, self.todo)
-        self.todolist.pack()
-        self.taskctrl.pack(side='left')
+        self.tasklist.pack()
+        self.taskplot.pack()
+        self.taskctrl.pack()
+        # catch closing event
+        self.master.protocol('WM_DELETE_WINDOW', self.onclose)
 
-#    def onclose(self):
-#        # TODO: prompt to copy temp todo over master todo
+    def onclose(self):
+        action = msg.askyesnocancel("Quit", "Save todo list?")
+        if action is True:
+            self.todo.save(overwrite=True)
+        elif action is False:
+            self.todo.remove_temp()
+        if action is not None:
+            # clean exit
+            root.quit()     # stops mainloop
+            root.destroy()  # this is necessary on Windows to prevent
+                            # Fatal Python Error: PyEval_RestoreThread: NULL tstate
 
 
 if __name__ == '__main__':
