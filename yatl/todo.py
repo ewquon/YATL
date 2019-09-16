@@ -58,13 +58,22 @@ class Todo(object):
                             ascending=[False,False,True],
                             inplace=True)
 
-    def _save(self,overwrite=False):
+    def save(self,overwrite=False):
+        """Save the todo list (to the temporary file, by default)"""
         if overwrite:
             self.df.to_csv(self.fpath, index=False)
             print('Saved',self.fpath)
-            os.remove(self.fpath_tmp)
+            self.remove_temp()
         else:
             self.df.to_csv(self.fpath_tmp, index=False)
+
+    def remove_temp(self):
+        try:
+            os.remove(self.fpath_tmp)
+        except IOError:
+            print('No changes')
+        else:
+            print('Cleaned up',self.fpath_tmp)
 
     def add_task(self, description, importance, cost):
         """Add a new task at the current time with the specified
@@ -91,7 +100,7 @@ class Todo(object):
         })
         self.df = self.df.append(newtask, ignore_index=True)
         self._sort_list()
-        self._save()
+        self.save()
 
     def mark_complete(self, i):
         """Mark task as completed with the current datetime"""
@@ -99,7 +108,7 @@ class Todo(object):
             completed_on = pd.to_datetime(self.df.loc[i,'completed'])
         except (ValueError, TypeError):
             self.df.loc[i,'completed'] = pd.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            self._save()
+            self.save()
         else:
             print('Task',i,'already completed:')
             print(self.df.loc[i])
