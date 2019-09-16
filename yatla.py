@@ -50,7 +50,6 @@ if __name__ == '__main__':
 
     if args.plot:
         todo.plot()
-        plt.show()
     elif args.gui:
         import tkinter as tk
         from yatl.gui import YATLApp

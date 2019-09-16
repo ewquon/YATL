@@ -146,7 +146,9 @@ class Todo(object):
         """Make a scatterplot of the current tasks on time vs
         importance axes.
         """
+        showplot = False
         if (fig is None) or (ax is None):
+            showplot = True
             fig,ax = plt.subplots(figsize=(10,4))
         # loop over tasks, checking for completion
         for i,task in self.df.iterrows():
@@ -197,4 +199,6 @@ class Todo(object):
         if legend:
             ax.legend(loc='upper left', bbox_to_anchor=(1.05,1))
         fig.tight_layout()
+        if showplot:
+            plt.show()
 
