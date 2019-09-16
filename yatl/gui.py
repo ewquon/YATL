@@ -3,6 +3,8 @@ import pandas as pd
 import tkinter as tk
 import tkinter.messagebox as msg
 
+default_task_charlen = 50
+
 class TaskList(tk.Frame):
     """Based on:
     https://stackoverflow.com/questions/50398649/python-tkinter-tk-support-checklist-box
@@ -26,7 +28,6 @@ class TaskList(tk.Frame):
         self.completed = [] # BooleanVars
         self.description = [] # StringVars
         self.removeme = [] # Button widgets
-        self.bg = self.cget("background") # system-specific
         for irow,(idx,task) in enumerate(self.df.iterrows()):
             rowcolor = self.row_color_cycle[irow % len(self.row_color_cycle)]
             description = task['description']
@@ -46,7 +47,7 @@ class TaskList(tk.Frame):
             text = tk.StringVar(value=description)
             cb = tk.Checkbutton(self, var=var, textvar=text,
                                 onvalue=True, offvalue=False, state=state,
-                                anchor="w", width=50,
+                                anchor="w", width=default_task_charlen,
                                 fg=textcolor, background=rowcolor,
                                 relief="flat", highlightthickness=0,
                                 command=lambda i=irow: self.update_complete(i),
@@ -100,10 +101,10 @@ class TaskList(tk.Frame):
 
 
 class YATLApp(object):
-    def __init__(self, master, df):
+    def __init__(self, master, todo):
         self.master = master
-        master.title = 'Yet Another Todo List App'
-        self.todolist = TaskList(master, df)
+        self.todo = todo
+        self.todolist = TaskList(master, self.todo.df)
         self.todolist.pack()
 
 
@@ -127,6 +128,6 @@ if __name__ == '__main__':
 
     root = tk.Tk()
     root.title('Yet Another Todo List')
-    mygui = YATLApp(root, todo.df)
+    mygui = YATLApp(root, todo)
     root.mainloop()
 
