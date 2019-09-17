@@ -100,7 +100,9 @@ class Todo(object):
             'priority': importance / cost,
             'completed': False,
         })
-        self.df = self.df.append(newtask, ignore_index=True)
+        # this will create a new dataframe, and lose the index ordering in the process:
+        #self.df = self.df.append(newtask, ignore_index=True)
+        self.df.loc[len(self.df)] = newtask
         self.sort_list()
         self.save()
 
