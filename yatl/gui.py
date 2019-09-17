@@ -42,18 +42,19 @@ class TaskList(tk.Frame):
         self.todo.sort_list()
         for irow,(idx,task) in enumerate(self.todo.df.iterrows()):
             rowcolor = self.row_color_cycle[irow % len(self.row_color_cycle)]
-            description = task['description']
-            try:
+            #description = task['description']
+            description = '(row={:d},label={:d}) {:s}'.format(
+                    irow,idx,task['description'])
+            completed_on = self.todo.get_completion_datetime(idx)
+            completed = (completed_on is not None)
+            if completed:
                 description += ' (completed {:s})'.format(
-                        pd.to_datetime(task['completed']).strftime(self.datetime_format))
-            except ValueError:
-                completed = False
-                state = 'normal'
-                textcolor = self.active_text_color
-            else:
-                completed = True
+                        completed_on.strftime(self.datetime_format))
                 state = 'disabled'
                 textcolor = self.inactive_text_color
+            else:
+                state = 'normal'
+                textcolor = self.active_text_color
             # Create checkbox and task description
             var = tk.BooleanVar(value=completed)
             text = tk.StringVar(value=description)
@@ -62,7 +63,7 @@ class TaskList(tk.Frame):
                                 anchor="w", width=default_task_charlen,
                                 fg=textcolor, background=rowcolor,
                                 relief="flat", highlightthickness=0,
-                                command=lambda i=idx: self.update_complete(i),
+                                command=lambda i=idx: self.update_task_complete(i),
                                )
             cb.grid(row=irow,column=0)
             # Create accompanying remove button
@@ -76,7 +77,7 @@ class TaskList(tk.Frame):
             self.description[idx] = text
             self.removeme[idx] = xbutton
 
-    def update_complete(self, idx):
+    def update_task_complete(self, idx):
         """Callback function for when a task is checked or unchecked
 
         Only callable for tasks that were not previously completed and
@@ -104,13 +105,7 @@ class TaskList(tk.Frame):
         self.removeme[idx].grid_forget()
         # TODO: update tasks, completed,removeme
         self.todo.delete_task(idx)
-
-    #def update(self):
-        # TODO: update checkbox states and text
-
-    def update_plot(self):
-        # TODO: figure out how to reference plot in separate canvas
-        print('Update plot')
+        #self.update()
 
 
 class TaskCreator(tk.Frame):

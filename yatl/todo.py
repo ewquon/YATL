@@ -104,7 +104,7 @@ class Todo(object):
         self.sort_list()
         self.save()
 
-    def _get_completion_datetime(self, i):
+    def get_completion_datetime(self, i):
         try:
             return pd.to_datetime(self.df.loc[i,'completed'])
         except (ValueError, TypeError):
@@ -117,7 +117,7 @@ class Todo(object):
 
     def mark_complete(self, i):
         """Mark task as completed with the current datetime"""
-        completed_on = self._get_completion_datetime(i)
+        completed_on = self.get_completion_datetime(i)
         if completed_on is None:
             self.df.loc[i,'completed'] = pd.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             self.save()
@@ -134,7 +134,7 @@ class Todo(object):
         importance. 
         """
         for i,task in self.df.iterrows():
-            completed_on = self._get_completion_datetime(i)
+            completed_on = self.get_completion_datetime(i)
             if completed_on is None:
                 # task incomplete
                 labelcolor = 'r'
@@ -161,7 +161,7 @@ class Todo(object):
             fig,ax = plt.subplots(figsize=(10,4))
         # loop over tasks, checking for completion
         for i,task in self.df.iterrows():
-            completed_on = self._get_completion_datetime(i)
+            completed_on = self.get_completion_datetime(i)
             if completed_on is None:
                 # task incomplete
                 labelcolor = 'r'
