@@ -145,6 +145,32 @@ class TaskList(tk.Frame):
         self.update()
 
 
+class TaskPlot(tk.Frame):
+    """Based on:
+    https://matplotlib.org/3.1.0/gallery/user_interfaces/embedding_in_tk_sgskip.html
+    """
+
+    def __init__(self, parent, todo, figsize=(2.5,2.5), **kwargs):
+        """Create canvas for time vs importance plot"""
+        tk.Frame.__init__(self, parent, **kwargs)
+        self.todo = todo
+        # Make the plot
+        self.fig, self.ax = plt.subplots(figsize=figsize)
+        self.update()
+        # Create the canvas, a tk.DrawingArea
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack(side=tk.LEFT)
+        # Shift the plot to the left slightly so that it looks more centered
+        bg = self.cget("background") # system-specific
+        spacer = tk.Frame(self, width=40, bg=bg) 
+        spacer.pack(side=tk.LEFT)
+ 
+    def update(self):
+        self.ax.cla()
+        self.todo.plot(fig=self.fig, ax=self.ax, legend=False)
+
+
 class TaskCreator(tk.Frame):
     default_description = 'Enter new task description here...'
 
@@ -209,28 +235,6 @@ class TaskCreator(tk.Frame):
         # reset description edit box
         self.description_entry.delete(0, tk.END)
         self.description_entry.insert(0, self.default_description)
-
-
-class TaskPlot(tk.Frame):
-    """Based on:
-    https://matplotlib.org/3.1.0/gallery/user_interfaces/embedding_in_tk_sgskip.html
-    """
-
-    def __init__(self, parent, todo, figsize=(2,2), **kwargs):
-        """Create canvas for time vs importance plot"""
-        tk.Frame.__init__(self, parent, **kwargs)
-        self.todo = todo
-        # Make the plot
-        self.fig, self.ax = plt.subplots(figsize=figsize)
-        self.update()
-        # Create the canvas, a tk.DrawingArea
-        self.canvas = FigureCanvasTkAgg(self.fig, master=self)
-        self.canvas.draw()
-        self.canvas.get_tk_widget().pack()
- 
-    def update(self):
-        self.ax.cla()
-        self.todo.plot(fig=self.fig, ax=self.ax, legend=False)
 
 
 class YATLApp(object):
