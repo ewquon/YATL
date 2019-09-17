@@ -177,12 +177,16 @@ class TaskPlot(tk.Frame):
         self.todo = todo
         # Make the plot
         self.fig, self.ax = plt.subplots(figsize=figsize)
-        self.todo.plot(fig=self.fig, ax=self.ax, legend=False)
+        self.update()
         # Create the canvas, a tk.DrawingArea
         self.canvas = FigureCanvasTkAgg(self.fig, master=self)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack()
  
+    def update(self):
+        self.ax.cla()
+        self.todo.plot(fig=self.fig, ax=self.ax, legend=False)
+
 
 class YATLApp(object):
     def __init__(self, master, todo):
