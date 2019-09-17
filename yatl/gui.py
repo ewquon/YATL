@@ -118,10 +118,12 @@ class TaskList(tk.Frame):
 class TaskCreator(tk.Frame):
     default_description = 'Enter new task description here...'
 
-    def __init__(self, parent, todo, **kwargs):
+    def __init__(self, parent, todo, tasklist, taskplot, **kwargs):
         """Create a series of controls for adding new tasks"""
         tk.Frame.__init__(self, parent, **kwargs)
         self.todo = todo
+        self.tasklist = tasklist
+        self.taskplot = taskplot
         value_minmax = todo.value_minmax
         # variables
         self.task_description = tk.StringVar(value=self.default_description)
@@ -209,7 +211,7 @@ class YATLApp(object):
         self.todo = todo
         tasklist = TaskList(master, self.todo)
         taskplot = TaskPlot(master, self.todo)
-        taskctrl = TaskCreator(master, self.todo)
+        taskctrl = TaskCreator(master, self.todo, tasklist, taskplot)
         tasklist.pack()
         taskplot.pack()
         taskctrl.pack()
