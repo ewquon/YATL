@@ -32,7 +32,7 @@ class TaskList(tk.Frame):
         # TODO: implement scrolling frame
         tk.Frame.__init__(self, parent, **kwargs)
         self.todo = todo
-        self.orig_description = self.todo.df['description']
+        self.orig_description = dict()
         self.checkbutton = dict() # Checkbutton widgets
         self.completed = dict() # BooleanVars
         self.description = dict() # StringVars
@@ -61,27 +61,49 @@ class TaskList(tk.Frame):
             else:
                 state = 'normal'
                 textcolor = self.active_text_color
-            # Create checkbox and task description
-            var = tk.BooleanVar(value=completed)
-            text = tk.StringVar(value=description)
-            cb = tk.Checkbutton(self, var=var, textvar=text,
-                                onvalue=True, offvalue=False, state=state,
-                                anchor="w", width=default_task_charlen,
-                                fg=textcolor, background=rowcolor,
-                                relief="flat", highlightthickness=0,
-                                command=lambda i=idx: self.update_task_complete(i),
-                               )
-            cb.grid(row=irow,column=0)
-            # Create accompanying remove button
-            # - note that the command is not evaluated until it is clicked
-            xbutton = tk.Button(self, text=' X ',
-                                command=lambda i=idx: self.remove_row(i))
-            xbutton.grid(row=irow, column=1)
-            # save widgets and associated variables
-            self.checkbutton[idx] = cb
-            self.completed[idx] = var
-            self.description[idx] = text
-            self.removeme[idx] = xbutton
+
+            # check whether we've already created the widget/variable
+            have_checkbutton = (idx in self.checkbutton)
+            have_completed = (idx in self.completed)
+            have_description = (idx in self.description)
+            have_removeme = (idx in self.removeme)
+            if all((have_checkbutton, have_completed, have_description,
+                    have_removeme)):
+                # update widget properties
+                if debug:
+                    print('Updating widget row',irow,'for idx',idx)
+                # update widget positions
+                self.checkbutton[idx].grid(row=irow,column=0)
+                self.removeme[idx].grid(row=irow, column=1)
+
+            else:
+                assert not any((have_checkbutton, have_completed,
+                                have_description, have_removeme))
+                # create set of widgets 
+                if debug:
+                    print('Creating widget row for idx',idx)
+                # Create checkbox and task description
+                self.orig_description[idx] = description
+                var = tk.BooleanVar(value=completed)
+                text = tk.StringVar(value=description)
+                cb = tk.Checkbutton(self, var=var, textvar=text,
+                                    onvalue=True, offvalue=False, state=state,
+                                    anchor="w", width=default_task_charlen,
+                                    fg=textcolor, background=rowcolor,
+                                    relief="flat", highlightthickness=0,
+                                    command=lambda i=idx: self.update_task_complete(i),
+                                   )
+                cb.grid(row=irow,column=0)
+                # Create accompanying remove button
+                # - note that the command is not evaluated until it is clicked
+                xbutton = tk.Button(self, text=' X ',
+                                    command=lambda i=idx: self.remove_row(i))
+                xbutton.grid(row=irow, column=1)
+                # save widgets and associated variables
+                self.checkbutton[idx] = cb
+                self.completed[idx] = var
+                self.description[idx] = text
+                self.removeme[idx] = xbutton
 
     def update_task_complete(self, idx):
         """Callback function for when a task is checked or unchecked
@@ -96,9 +118,11 @@ class TaskList(tk.Frame):
                                                pd.datetime.now().strftime(self.datetime_format))
             )
             self.checkbutton[idx].config(fg=self.inactive_text_color)
+            self.todo.mark_complete(idx)
         else:
             self.description[idx].set(self.orig_description[idx])
             self.checkbutton[idx].config(fg=self.active_text_color)
+            self.todo.df.loc[idx,'completed'] = False
 
     def remove_row(self, idx):
         """Remove task from list"""
@@ -110,9 +134,15 @@ class TaskList(tk.Frame):
             print('Remove task',idx,':',self.description[idx].get())
         self.checkbutton[idx].grid_forget()
         self.removeme[idx].grid_forget()
-        # TODO: update tasks, completed,removeme
+        # get rid of the old widgets/variables
+        self.checkbutton.pop(idx)
+        self.completed.pop(idx)
+        self.description.pop(idx)
+        self.removeme.pop(idx)
+        # update dataframe
         self.todo.delete_task(idx)
-        #self.update()
+        # update task list
+        self.update()
 
 
 class TaskCreator(tk.Frame):
@@ -168,10 +198,15 @@ class TaskCreator(tk.Frame):
         description = self.description_entry.get()
         importance = self.importance.get()
         cost = self.cost.get()
-        priority = importance / cost
-        print(description, importance, cost, priority)
         if debug:
             print('Adding task',description,importance,cost)
+        # update dataframe
+        self.todo.add_task(description, importance, cost)
+        # update the task list (which depends on the dataframe)
+        self.tasklist.update()
+        # update the task plot
+        self.taskplot.update()
+        # reset description edit box
         self.description_entry.delete(0, tk.END)
         self.description_entry.insert(0, self.default_description)
 
