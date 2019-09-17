@@ -13,6 +13,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 default_task_charlen = 50
 
+debug = False
+
 class TaskList(tk.Frame):
     """Based on:
     https://stackoverflow.com/questions/50398649/python-tkinter-tk-support-checklist-box
@@ -38,13 +40,17 @@ class TaskList(tk.Frame):
         self.update()
 
     def update(self):
-        """Recreate task list elements"""
+        """Update/create elements in task list"""
         self.todo.sort_list()
+        if debug:
+            print(self.todo.df[['description','priority','importance','datetime']])
         for irow,(idx,task) in enumerate(self.todo.df.iterrows()):
             rowcolor = self.row_color_cycle[irow % len(self.row_color_cycle)]
-            #description = task['description']
-            description = '(row={:d},label={:d}) {:s}'.format(
-                    irow,idx,task['description'])
+            if debug:
+                description = '(row={:d},label={:d}) {:s}'.format(
+                        irow,idx,task['description'])
+            else:
+                description = task['description']
             completed_on = self.todo.get_completion_datetime(idx)
             completed = (completed_on is not None)
             if completed:
@@ -100,7 +106,8 @@ class TaskList(tk.Frame):
             # confirm delete for incomplete task
             if not msg.askyesno('Delete task', 'Delete incomplete task?'):
                 return
-        print('Remove task',idx,':',self.description[idx].get())
+        if debug:
+            print('Remove task',idx,':',self.description[idx].get())
         self.checkbutton[idx].grid_forget()
         self.removeme[idx].grid_forget()
         # TODO: update tasks, completed,removeme
@@ -116,7 +123,6 @@ class TaskCreator(tk.Frame):
         tk.Frame.__init__(self, parent, **kwargs)
         self.todo = todo
         value_minmax = todo.value_minmax
-        print(id(self.todo.df))
         # variables
         self.task_description = tk.StringVar(value=self.default_description)
         self.importance = tk.DoubleVar(value=value_minmax[1])
@@ -162,6 +168,8 @@ class TaskCreator(tk.Frame):
         cost = self.cost.get()
         priority = importance / cost
         print(description, importance, cost, priority)
+        if debug:
+            print('Adding task',description,importance,cost)
         self.description_entry.delete(0, tk.END)
         self.description_entry.insert(0, self.default_description)
 
@@ -229,7 +237,6 @@ if __name__ == '__main__':
     from yatl.todo import Todo
 
     todo = Todo(YATL_PATH)
-    print(id(todo.df))
 
     root = tk.Tk()
     root.title('Yet Another Todo List')
