@@ -211,7 +211,7 @@ class YATLApp(object):
 
     def onclose(self):
         if self.todo.changed is True:
-            action = msg.askyesnocancel("Quit", "Save todo list?")
+            action = msg.askyesnocancel('Quit', 'Save todo list?')
             if action is True:
                 self.todo.save(overwrite=True)
             elif action is False:

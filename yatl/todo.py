@@ -52,9 +52,9 @@ class Todo(object):
         except FileNotFoundError: 
             self.df = pd.DataFrame(columns=self.todo_columns)
         else:
-            self._sort_list()
+            self.sort_list()
 
-    def _sort_list(self):
+    def sort_list(self):
         self.df.sort_values(by=['priority','importance','datetime'],
                             ascending=[False,False,True],
                             inplace=True)
@@ -101,7 +101,7 @@ class Todo(object):
             'completed': False,
         })
         self.df = self.df.append(newtask, ignore_index=True)
-        self._sort_list()
+        self.sort_list()
         self.save()
 
     def _get_completion_datetime(self, i):
@@ -109,6 +109,11 @@ class Todo(object):
             return pd.to_datetime(self.df.loc[i,'completed'])
         except (ValueError, TypeError):
             return None
+
+    def delete_task(self, i):
+        """Delete task"""
+        self.df.drop(labels=i, axis=0, inplace=True)
+        self.save()
 
     def mark_complete(self, i):
         """Mark task as completed with the current datetime"""
