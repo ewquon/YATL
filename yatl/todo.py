@@ -127,7 +127,7 @@ class Todo(object):
             print('Task',i,'already completed:')
             print(self.df.loc[i])
 
-    def _plot_offset(self, frac=0.025):
+    def _plot_offset(self, frac=0.05):
         maxdisp = frac * (self.value_minmax[1] - self.value_minmax[0])
         return maxdisp * (2*np.random.random_sample() - 1)
 
